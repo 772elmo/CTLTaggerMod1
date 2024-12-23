@@ -1,0 +1,93 @@
+plugins {
+	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'maven-publish'
+	id 'java'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral() // Maven Central repository for OkHttp
+	maven { url 'https://repo.maven.apache.org/maven2' }
+	maven { url 'https://maven.fabricmc.net' }
+	maven { url 'https://libraries.minecraft.net' }
+	maven { url 'https://jitpack.io' }
+	maven { url 'https://maven.shedaniel.me' }
+	maven { url 'https://maven.terraformersmc.com'}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:1.20.1"
+	mappings "net.fabricmc:yarn:1.20.1+build.10:v2"
+	modImplementation "net.fabricmc:fabric-loader:0.16.0"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.92.2+1.20.1"
+
+	// Other dependencies
+	implementation 'com.google.api-client:google-api-client:2.7.0'
+	implementation 'com.google.oauth-client:google-oauth-client-jetty:1.36.0'
+	implementation 'com.google.apis:google-api-services-sheets:v4-rev20241203-2.0.0'
+	implementation 'com.google.http-client:google-http-client:1.45.3'
+	implementation 'com.google.code.gson:gson:2.11.0'
+	modImplementation("com.terraformersmc:modmenu:7.2.2")
+	modImplementation 'me.shedaniel.cloth:cloth-config-fabric:11.1.106'
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "loader_version", project.loader_version
+	filteringCharset "UTF-8"
+
+	// Filter the mixin config file only
+	filesMatching("ctltiers.mixins.json") {
+		expand "version": project.version,
+				"minecraft_version": project.minecraft_version,
+				"loader_version": project.loader_version
+	}
+
+	// Add fabric.mod.json to resources
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version,
+				"modid": project.archivesBaseName
+	}
+}
+
+jar {
+	manifest {
+		attributes(
+				'Main-Class': 'CTLTiers.config.Tiertagger' // Replace with your actual main class
+		)
+	}
+
+	// Include only the main classes (exclude dependencies)
+	from sourceSets.main.output
+
+	// Include additional resources like config files, but NOT dependencies
+	from 'src/main/resources'
+
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Ensure dependencies are not included in the JAR (this should be a separate task if needed)
+task copyDependencies(type: Copy) {
+	from configurations.runtimeClasspath
+	into "$buildDir/libs" // Ensure dependencies are separate
+}
+
+// We do not want to finalize the JAR task with the dependencies copy
+// Remove this line to prevent copying dependencies into the JAR
+// jar.finalizedBy(copyDependencies)
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) { publication ->
+			artifactId = project.archivesBaseName
+			from components.java
+		}
+	}
+}

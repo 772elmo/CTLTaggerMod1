@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "ctl.tagger.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"MixinPlayerEntity"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

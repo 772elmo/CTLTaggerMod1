@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "tiertagger",
+	"version": "${version}",
+	"name": "Tiertagger",
+	"description": "A mod that fetches ranks from the official Central Tierlist API",
+	"authors": ["772elmo"],
+	"contact": {
+		"homepage": "https://example.com",
+		"sources": "https://github.com/yourname/tiertagger"
+	},
+	"license": "MIT",
+	"entrypoints": {
+		"main": [
+			"ctl.tagger.config.Tiertagger"
+		],
+		"modmenu": [
+			"ctl.tagger.screen.TiertaggerModMenu"
+		]
+	},
+	"depends": {
+		"fabric-api": "*",
+		"modmenu": "*"
+	},
+	"mixins": [
+		"ctltagger.mixins.json"
+	]
+}
